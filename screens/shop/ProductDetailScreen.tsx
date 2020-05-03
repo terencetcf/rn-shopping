@@ -1,14 +1,15 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, Button } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { NavigationStackScreenComponent } from 'react-navigation-stack';
 
 import { IRootState } from '../../store/states';
 import Product from '../../models/product';
-import { NavigationScreenConfigProps } from 'react-navigation';
 import { ScrollView } from 'react-native-gesture-handler';
 import currency from '../../helpers/currency';
 import Colors from '../../constants/Colors';
+import Fonts from '../../constants/Fonts';
+import * as cartActions from '../../store/actions/cart';
 
 type Params = {
   productId: string;
@@ -38,11 +39,21 @@ const ProductDetailsScreen: NavigationStackScreenComponent<
     );
   }
 
+  const dispatch = useDispatch();
+
+  const addToCard = (product: Product) => {
+    dispatch(cartActions.addToCart(product));
+  };
+
   return (
     <ScrollView>
       <Image style={styles.image} source={{ uri: selectedProduct.imageUrl }} />
       <View style={styles.actions}>
-        <Button color={Colors.primary} title="Add to Card" onPress={() => {}} />
+        <Button
+          color={Colors.primary}
+          title="Add to Card"
+          onPress={() => addToCard(selectedProduct)}
+        />
       </View>
       <Text style={styles.price}>
         {currency.toString(selectedProduct.price)}
@@ -72,6 +83,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   price: {
+    fontFamily: Fonts.bold,
     fontSize: 20,
     color: '#888',
     textAlign: 'center',

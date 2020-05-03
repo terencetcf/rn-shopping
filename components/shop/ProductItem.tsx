@@ -4,6 +4,7 @@ import Product from '../../models/product';
 import currency from '../../helpers/currency';
 import Colors from '../../constants/Colors';
 import DefaultTouchable from '../default/DefaultTouchable';
+import Fonts from '../../constants/Fonts';
 
 type Props = {
   product: Product;
@@ -84,10 +85,12 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   title: {
+    fontFamily: Fonts.bold,
     fontSize: 18,
-    marginVertical: 4,
+    marginVertical: 2,
   },
   price: {
+    fontFamily: Fonts.regular,
     fontSize: 14,
     color: '#888',
   },

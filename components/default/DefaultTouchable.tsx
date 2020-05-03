@@ -1,16 +1,23 @@
 import React, { ReactType } from 'react';
-import { TouchableOpacity, TouchableNativeFeedback } from 'react-native';
+import {
+  TouchableOpacity,
+  TouchableNativeFeedback,
+  ViewStyle,
+  StyleProp,
+} from 'react-native';
 
 import device from '../../helpers/device';
 
 type Props = {
   onPress: () => void;
   useForeground?: boolean;
+  style?: StyleProp<ViewStyle>;
 };
 
 const DefaultTouchable: React.FC<Props> = ({
   onPress,
   useForeground,
+  style,
   children,
 }) => {
   const TouchableComp: ReactType = device.isRecentAndroid()
@@ -18,7 +25,11 @@ const DefaultTouchable: React.FC<Props> = ({
     : TouchableOpacity;
 
   return (
-    <TouchableComp onPress={onPress} useForeground={useForeground}>
+    <TouchableComp
+      style={style}
+      onPress={onPress}
+      useForeground={useForeground}
+    >
       {children}
     </TouchableComp>
   );
