@@ -8,19 +8,14 @@ import Fonts from '../../constants/Fonts';
 
 type Props = {
   product: Product;
-  onPressViewDetails: () => void;
-  onPressAddToCard: () => void;
+  onPress: () => void;
 };
 
-const ProductItem: React.FC<Props> = ({
-  product,
-  onPressViewDetails,
-  onPressAddToCard,
-}) => {
+const ProductItem: React.FC<Props> = ({ product, onPress, ...props }) => {
   return (
     <View style={styles.product}>
       <View style={styles.touchable}>
-        <DefaultTouchable onPress={() => onPressViewDetails()} useForeground>
+        <DefaultTouchable onPress={() => onPress()} useForeground>
           <View>
             <View style={styles.imageContainer}>
               <Image source={{ uri: product.imageUrl }} style={styles.image} />
@@ -31,18 +26,7 @@ const ProductItem: React.FC<Props> = ({
                 {currency.toString(product.price)}
               </Text>
             </View>
-            <View style={styles.actions}>
-              <Button
-                color={Colors.primary}
-                title="View Details"
-                onPress={() => onPressViewDetails()}
-              />
-              <Button
-                color={Colors.primary}
-                title="To Card"
-                onPress={() => onPressAddToCard()}
-              />
-            </View>
+            <View style={styles.actions}>{props.children}</View>
           </View>
         </DefaultTouchable>
       </View>
@@ -81,7 +65,7 @@ const styles = StyleSheet.create({
   },
   details: {
     alignItems: 'center',
-    height: '15%',
+    height: '17%',
     padding: 10,
   },
   title: {
@@ -98,7 +82,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    height: '25%',
+    height: '23%',
     paddingHorizontal: 20,
   },
 });

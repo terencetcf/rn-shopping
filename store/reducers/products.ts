@@ -1,4 +1,4 @@
-import { ProductActionTypes } from '../actions/products';
+import { ProductsActionTypes, ProductsActions } from '../actions/products';
 import { IProductState } from '../states/products';
 import PRODUCTS from '../../data/dummy-data';
 
@@ -9,7 +9,21 @@ const initialState: IProductState = {
 
 export default (
   state: IProductState = initialState,
-  action: ProductActionTypes
+  action: ProductsActionTypes
 ) => {
-  return state;
+  switch (action.type) {
+    case ProductsActions.DELETE_PRODUCT:
+      return {
+        ...state,
+        availableProducts: state.availableProducts.filter(
+          (product) => product.id !== action.productId
+        ),
+        userProducts: state.userProducts.filter(
+          (product) => product.id !== action.productId
+        ),
+      };
+
+    default:
+      return state;
+  }
 };

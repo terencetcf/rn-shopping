@@ -17,6 +17,8 @@ import date from '../../helpers/date';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import CustomHeaderButton from '../../UI/HeaderButton';
 import device from '../../helpers/device';
+import OrderDetails from '../../components/shop/OrderDetails';
+import DefaultHeaderLeft from '../../components/default/DefaultHeaderLeft';
 
 type Params = {};
 
@@ -59,11 +61,7 @@ const OrdersScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
                 {currency.toString(itemData.item.totalAmount)}
               </Text>
             </View>
-            <FlatList<ICartItem>
-              keyExtractor={(item) => item.productId}
-              data={itemData.item.items}
-              renderItem={(cartData) => <CartItem cartItem={cartData.item} />}
-            />
+            <OrderDetails items={itemData.item.items} />
           </Card>
         </View>
       )}
@@ -74,17 +72,7 @@ const OrdersScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
 OrdersScreen.navigationOptions = (navData) => {
   return {
     headerTitle: 'Your Orders',
-    headerLeft: () => (
-      <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
-        <Item
-          title="Menu"
-          iconName={device.isAndroid() ? 'md-menu' : 'ios-menu'}
-          onPress={() => {
-            (navData.navigation as any).toggleDrawer();
-          }}
-        />
-      </HeaderButtons>
-    ),
+    headerLeft: () => <DefaultHeaderLeft navData={navData} />,
   };
 };
 

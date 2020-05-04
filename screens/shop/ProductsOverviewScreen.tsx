@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, FlatList } from 'react-native';
+import { StyleSheet, FlatList, Button } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { NavigationStackScreenComponent } from 'react-navigation-stack';
 import { NavigationDrawerScreenComponent } from 'react-navigation-drawer';
@@ -11,6 +11,8 @@ import * as cartActions from '../../store/actions/cart';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import CustomHeaderButton from '../../UI/HeaderButton';
 import device from '../../helpers/device';
+import DefaultHeaderLeft from '../../components/default/DefaultHeaderLeft';
+import Colors from '../../constants/Colors';
 
 type Params = {};
 
@@ -26,6 +28,16 @@ const ProductsOverviewScreen: NavigationStackScreenComponent<
 
   const dispatch = useDispatch();
 
+  const productPressHandler = (product: Product) => {
+    props.navigation.navigate({
+      routeName: 'ProductDetails',
+      params: {
+        productId: product.id,
+        productTitle: product.title,
+      },
+    });
+  };
+
   const addToCard = (product: Product) => {
     dispatch(cartActions.addToCart(product));
   };
@@ -36,17 +48,21 @@ const ProductsOverviewScreen: NavigationStackScreenComponent<
       renderItem={(itemData) => (
         <ProductItem
           product={itemData.item}
-          onPressViewDetails={() => {
-            props.navigation.navigate({
-              routeName: 'ProductDetails',
-              params: {
-                productId: itemData.item.id,
-                productTitle: itemData.item.title,
-              },
-            });
+          onPress={() => {
+            productPressHandler(itemData.item);
           }}
-          onPressAddToCard={() => addToCard(itemData.item)}
-        />
+        >
+          <Button
+            color={Colors.primary}
+            title="View Details"
+            onPress={() => productPressHandler(itemData.item)}
+          />
+          <Button
+            color={Colors.primary}
+            title="To Card"
+            onPress={() => addToCard(itemData.item)}
+          />
+        </ProductItem>
       )}
     />
   );
@@ -55,17 +71,7 @@ const ProductsOverviewScreen: NavigationStackScreenComponent<
 ProductsOverviewScreen.navigationOptions = (navData) => {
   return {
     headerTitle: 'All Products',
-    headerLeft: () => (
-      <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
-        <Item
-          title="Menu"
-          iconName={device.isAndroid() ? 'md-menu' : 'ios-menu'}
-          onPress={() => {
-            (navData.navigation as any).toggleDrawer();
-          }}
-        />
-      </HeaderButtons>
-    ),
+    headerLeft: () => <DefaultHeaderLeft navData={navData} />,
     headerRight: () => (
       <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
         <Item

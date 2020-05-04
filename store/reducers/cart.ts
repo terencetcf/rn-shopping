@@ -2,6 +2,7 @@ import { ICardState } from '../states/cart';
 import { CartActionTypes, CartActions } from '../actions/cart';
 import { CartItem } from '../../models/cart-Item';
 import { OrdersActions, OrdersActionTypes } from '../actions/orders';
+import { ProductsActionTypes, ProductsActions } from '../actions/products';
 
 const initialState: ICardState = {
   items: [],
@@ -10,7 +11,7 @@ const initialState: ICardState = {
 
 export default (
   state: ICardState = initialState,
-  action: CartActionTypes | OrdersActionTypes
+  action: CartActionTypes | OrdersActionTypes | ProductsActionTypes
 ) => {
   switch (action.type) {
     case CartActions.ADD_TO_CART:
@@ -86,6 +87,17 @@ export default (
 
     case OrdersActions.ADD_ORDER:
       return initialState;
+
+    case ProductsActions.DELETE_PRODUCT:
+      const remainingItems = state.items.filter(
+        (product) => product.productId !== action.productId
+      );
+
+      return {
+        ...state,
+        items: remainingItems,
+        totalAmount: getTotal(remainingItems),
+      };
 
     default:
       return state;
