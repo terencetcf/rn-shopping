@@ -51,7 +51,7 @@ const CartScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
 
   return (
     <View style={styles.screen}>
-      <View style={styles.summary}>
+      <Card style={styles.summary}>
         <Text style={styles.summaryText}>
           Total:{' '}
           <Text style={styles.amount}>{currency.toString(totalAmount)}</Text>
@@ -62,7 +62,7 @@ const CartScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
           onPress={() => orderNow()}
           disabled={cartItems.length < 1}
         />
-      </View>
+      </Card>
       <Card title="CART ITEMS">
         <FlatList<ICartItem>
           keyExtractor={(item) => item.productId}
@@ -102,14 +102,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 20,
-    padding: 10,
-    shadowColor: 'black',
-    shadowOpacity: 0.26,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 8,
-    elevation: 5,
-    borderRadius: 10,
-    backgroundColor: 'white',
   },
   summaryText: {
     fontFamily: Fonts.bold,

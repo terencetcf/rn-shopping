@@ -9,7 +9,7 @@ interface IProps extends ViewProps {
 
 const Card: React.FC<IProps> = ({ title, ...props }) => {
   return (
-    <View style={{ ...(props.style as object), ...styles.container }}>
+    <View style={{ ...styles.container, ...(props.style as object) }}>
       {title && <Text style={styles.title}>{title}</Text>}
       {props.children}
     </View>

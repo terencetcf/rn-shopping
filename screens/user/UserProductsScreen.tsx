@@ -1,5 +1,13 @@
 import React from 'react';
-import { StyleSheet, Text, View, Image, Button, FlatList } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  Button,
+  FlatList,
+  Alert,
+} from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { NavigationStackScreenComponent } from 'react-navigation-stack';
 
@@ -33,7 +41,19 @@ const UserProductsScreen: NavigationStackScreenComponent<
   };
 
   const deleteButtonHandler = (productId: string) => {
-    dispatch(deleteProduct(productId));
+    Alert.alert('Are you sure?', 'Do you really want to delete this item?', [
+      {
+        text: 'No',
+        style: 'default',
+      },
+      {
+        text: 'Yes',
+        style: 'destructive',
+        onPress: () => {
+          dispatch(deleteProduct(productId));
+        },
+      },
+    ]);
   };
 
   return (
@@ -73,7 +93,7 @@ UserProductsScreen.navigationOptions = (navData) => {
         iconName="ios-create"
         iconNameAndroid="md-create"
         onPress={() => {
-          console.log('add');
+          navData.navigation.navigate('EditProduct');
         }}
       />
     ),
