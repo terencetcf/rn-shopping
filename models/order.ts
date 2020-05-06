@@ -6,16 +6,11 @@ export class Order {
   date: Date;
   totalAmount: number;
 
-  constructor(
-    items: ICartItem[],
-    totalAmount: number,
-    id?: string,
-    date?: Date
-  );
-  constructor(items: ICartItem[], totalAmount: number, id: string, date: Date) {
+  constructor(items: ICartItem[], totalAmount: number, id?: string);
+  constructor(items: ICartItem[], totalAmount: number, id: string) {
     this.id = id;
     this.items = items;
-    this.date = date;
     this.totalAmount = totalAmount;
+    this.date = new Date();
   }
 }

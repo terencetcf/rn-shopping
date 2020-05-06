@@ -5,12 +5,15 @@ import {
   View,
   TextInput,
   TextInputProps,
+  StyleProp,
+  TextStyle,
 } from 'react-native';
 import Fonts from '../constants/Fonts';
 import Colors from '../constants/Colors';
 
 interface IProps extends TextInputProps {
   label: string;
+  labelStyle?: StyleProp<TextStyle>;
   required?: boolean;
   validateErrorMessage?: string;
   validate?: () => boolean;
@@ -18,7 +21,7 @@ interface IProps extends TextInputProps {
 
 const TextField: React.FC<IProps> = ({
   label,
-  value = '',
+  labelStyle,
   required = false,
   validateErrorMessage,
   validate,
@@ -32,7 +35,7 @@ const TextField: React.FC<IProps> = ({
     }
 
     if (!validate) {
-      setShowValidation(value.length < 1);
+      setShowValidation(!props.value || props.value.length < 1);
       return;
     }
 
@@ -41,10 +44,14 @@ const TextField: React.FC<IProps> = ({
 
   return (
     <View style={styles.formControl}>
-      <Text style={styles.label}>
+      <Text style={{ ...styles.label, ...(labelStyle as object) }}>
         {label} {required && <Text style={styles.required}>*</Text>}
       </Text>
-      <TextInput {...props} style={styles.input} onBlur={onBlur} />
+      <TextInput
+        {...props}
+        style={{ ...styles.input, ...(props.style as object) }}
+        onBlur={onBlur}
+      />
       {showValidation && (
         <Text style={styles.errorMessage}>{`${
           validateErrorMessage ? validateErrorMessage : 'Please enter'

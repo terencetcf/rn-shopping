@@ -3,6 +3,7 @@ import { StyleSheet, FlatList, View, Button } from 'react-native';
 
 import { ICartItem } from '../../models/cart-Item';
 import CartItem from './CartItem';
+import Colors from '../../constants/Colors';
 
 interface IProps {
   items: ICartItem[];
@@ -16,6 +17,7 @@ const OrderDetails: React.FC<IProps> = ({ items, ...props }) => {
       <Button
         title={showDetails ? 'Hide Details' : 'Show Details'}
         onPress={() => setShowDetails((current) => !current)}
+        color={Colors.primary}
       />
       {showDetails && (
         <FlatList<ICartItem>

@@ -11,13 +11,10 @@ export default (
 ) => {
   switch (action.type) {
     case OrdersActions.ADD_ORDER:
-      const now = new Date();
-      const newOrder = {
-        ...action.orderData,
-        id: now.getTime().toString(),
-        date: now,
-      };
-      return { ...state, orders: state.orders.concat(newOrder) };
+      return { ...state, orders: state.orders.concat(action.orderData) };
+
+    case OrdersActions.GET_ORDERS:
+      return { ...state, orders: action.orders };
 
     default:
       return state;

@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  View,
-  Image,
-  Button,
-  FlatList,
-  Alert,
-} from 'react-native';
+import { StyleSheet, Button, FlatList, Alert } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { NavigationStackScreenComponent } from 'react-navigation-stack';
 

@@ -1,5 +1,13 @@
-import React from 'react';
-import { StyleSheet, Text, View, Image, Button, FlatList } from 'react-native';
+import React, { useCallback, useState, useEffect } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  FlatList,
+  Alert,
+  ActivityIndicator,
+} from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { NavigationStackScreenComponent } from 'react-navigation-stack';
 
@@ -13,6 +21,7 @@ import * as cartActions from '../../store/actions/cart';
 import * as orderActions from '../../store/actions/orders';
 import Card from '../../components/Card';
 import { Order } from '../../models/order';
+import Loader from '../../components/Loader';
 
 type Params = {};
 
@@ -22,9 +31,12 @@ const CartScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
   navigation,
   ...props
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>('');
   const cartItems = useSelector<IRootState, ICartItem[]>(
     (state) => state.cart.items
   );
+  const ownerId = 'u1';
 
   const totalAmount = useSelector<IRootState, number>(
     (state) => state.cart.totalAmount
@@ -44,10 +56,39 @@ const CartScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
     dispatch(cartActions.decreaseCartQuantity(productId));
   };
 
-  const orderNow = () => {
+  const orderNow = useCallback(async () => {
+    setError('');
+    setIsLoading(true);
+    let errorOcurred = false;
     const order = new Order(cartItems, totalAmount);
-    dispatch(orderActions.addOrder(order));
-  };
+    try {
+      await dispatch(orderActions.addOrder(ownerId, order));
+    } catch (err) {
+      setError(err.message);
+      errorOcurred = true;
+    }
+
+    setIsLoading(false);
+    if (!errorOcurred) {
+      Alert.alert(
+        'Ordered completed',
+        'Your order has been successfully placed!',
+        [{ text: 'Ok', style: 'default' }]
+      );
+      navigation.popToTop();
+      navigation.navigate('Orders');
+    }
+  }, [dispatch, cartItems, totalAmount]);
+
+  useEffect(() => {
+    if (error) {
+      Alert.alert(
+        'Error occurred!',
+        'Unable to submit the order, please try again later',
+        [{ text: 'Ok', style: 'default' }]
+      );
+    }
+  }, [error]);
 
   return (
     <View style={styles.screen}>
@@ -56,12 +97,16 @@ const CartScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
           Total:{' '}
           <Text style={styles.amount}>{currency.toString(totalAmount)}</Text>
         </Text>
-        <Button
-          color={Colors.accent}
-          title="Order Now"
-          onPress={() => orderNow()}
-          disabled={cartItems.length < 1}
-        />
+        {isLoading ? (
+          <ActivityIndicator size="small" color={Colors.primary} />
+        ) : (
+          <Button
+            color={Colors.accent}
+            title="Order Now"
+            onPress={orderNow}
+            disabled={cartItems.length < 1}
+          />
+        )}
       </Card>
       <Card title="CART ITEMS">
         <FlatList<ICartItem>

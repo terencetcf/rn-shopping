@@ -1,24 +1,20 @@
-import React from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, Button, FlatList } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { NavigationStackScreenComponent } from 'react-navigation-stack';
 
 import { IRootState } from '../../store/states';
 import Fonts from '../../constants/Fonts';
-import { ICartItem } from '../../models/cart-Item';
-import Colors from '../../constants/Colors';
 import currency from '../../helpers/currency';
-import CartItem from '../../components/shop/CartItem';
-import * as cartActions from '../../store/actions/cart';
 import * as orderActions from '../../store/actions/orders';
 import Card from '../../components/Card';
 import { Order } from '../../models/order';
 import date from '../../helpers/date';
-import { HeaderButtons, Item } from 'react-navigation-header-buttons';
-import CustomHeaderButton from '../../UI/HeaderButton';
-import device from '../../helpers/device';
 import OrderDetails from '../../components/shop/OrderDetails';
 import DefaultHeaderLeft from '../../components/default/DefaultHeaderLeft';
+import ErrorView from '../../components/ErrorView';
+import Loader from '../../components/Loader';
+import CenteredView from '../../components/CenteredView';
 
 type Params = {};
 
@@ -28,19 +24,50 @@ const OrdersScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
   navigation,
   ...props
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>('');
+  const ownerId = 'u1';
+
+  const dispatch = useDispatch();
+
+  const loadOrders = useCallback(async () => {
+    setError('');
+    setIsLoading(true);
+    try {
+      await dispatch(orderActions.getOrders(ownerId));
+    } catch (err) {
+      setError(err.message);
+    }
+    setIsLoading(false);
+  }, [dispatch, setIsLoading, setError]);
+
+  useEffect(() => {
+    const willFocusListener = navigation.addListener('willFocus', loadOrders);
+
+    return () => {
+      willFocusListener.remove();
+    };
+  }, [loadOrders, navigation]);
+
+  useEffect(() => {
+    loadOrders();
+  }, [dispatch, loadOrders]);
+
   const orders = useSelector<IRootState, Order[]>(
     (state) => state.orders.orders
   );
 
-  if (orders.length < 1) {
-    return (
-      <View style={styles.noOrderContainer}>
-        <Text>You do not have any order yet!</Text>
-      </View>
-    );
+  if (error) {
+    return <ErrorView retry={loadOrders} />;
   }
 
-  const dispatch = useDispatch();
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  if (orders.length < 1) {
+    return <CenteredView message="No order is available!" />;
+  }
 
   return (
     <FlatList<Order>

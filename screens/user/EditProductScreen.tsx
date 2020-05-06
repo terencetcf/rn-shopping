@@ -15,6 +15,7 @@ import TextField from '../../components/TextField';
 import * as productsActions from '../../store/actions/products';
 import numberHelper from '../../helpers/numberHelper';
 import DefaultHeaderButtons from '../../components/default/DefaultHeaderButtons';
+import Loader from '../../components/Loader';
 
 type Params = {
   productId: string;
@@ -29,6 +30,8 @@ const EditProductScreen: NavigationStackScreenComponent<
   Params,
   ScreenProps
 > = ({ navigation, ...props }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>('');
   const productId = navigation.getParam('productId');
   const productToEdit = useSelector<IRootState, Product | undefined>((state) =>
     state.products.userProducts.find((p) => p.id === productId)
@@ -51,7 +54,7 @@ const EditProductScreen: NavigationStackScreenComponent<
 
   const dispatch = useDispatch();
 
-  const submitHandler = useCallback(() => {
+  const submitHandler = useCallback(async () => {
     if (!validateForm()) {
       Alert.alert(
         'Invalid entry',
@@ -61,6 +64,10 @@ const EditProductScreen: NavigationStackScreenComponent<
       return;
     }
 
+    setError('');
+    setIsLoading(true);
+
+    let errOccurred = false;
     const enteredProduct = {
       title,
       imageUrl,
@@ -68,18 +75,27 @@ const EditProductScreen: NavigationStackScreenComponent<
       description,
     } as Product;
 
-    if (productToEdit) {
-      dispatch(
-        productsActions.editProduct({
-          ...productToEdit,
-          ...enteredProduct,
-        })
-      );
-    } else {
-      dispatch(productsActions.addProduct(enteredProduct));
+    try {
+      if (productToEdit) {
+        await dispatch(
+          productsActions.editProduct({
+            ...productToEdit,
+            ...enteredProduct,
+          })
+        );
+      } else {
+        await dispatch(productsActions.addProduct(enteredProduct));
+      }
+    } catch (err) {
+      setError(err.message);
+      errOccurred = true;
     }
 
-    navigation.goBack();
+    setIsLoading(false);
+
+    if (!errOccurred) {
+      navigation.goBack();
+    }
   }, [dispatch, productToEdit, title, imageUrl, price, description]);
 
   useEffect(() => {
@@ -100,7 +116,21 @@ const EditProductScreen: NavigationStackScreenComponent<
     navigation.setParams({ submit: submitHandler });
   }, [submitHandler]);
 
+  useEffect(() => {
+    if (error) {
+      Alert.alert(
+        'Error occurred!',
+        'Unable to save the product details, please try again later',
+        [{ text: 'Ok', style: 'default' }]
+      );
+    }
+  }, [error]);
+
   const isPriceValid = (): boolean => +price > 0;
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <KeyboardAvoidingView
