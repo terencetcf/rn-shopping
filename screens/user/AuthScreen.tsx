@@ -8,15 +8,19 @@ import {
   Button,
   ImageBackground,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { NavigationStackScreenComponent } from 'react-navigation-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import Card from '../../components/Card';
 import TextField from '../../components/TextField';
 import Colors from '../../constants/Colors';
 import { useDispatch } from 'react-redux';
 import * as authActions from '../../store/actions/auth';
+import DefaultTouchable from '../../components/default/DefaultTouchable';
+import device from '../../helpers/device';
+import validator from '../../helpers/validator';
+import Fonts from '../../constants/Fonts';
 
 type Params = {};
 
@@ -28,9 +32,10 @@ const AuthScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
-  const [error, setError] = useState<string>('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [isValid, setIsValid] = useState(false);
+  const [error, setError] = useState('');
+  const [email, setEmail] = useState('1@test.com');
+  const [password, setPassword] = useState('123456');
 
   const dispatch = useDispatch();
   const authHandler = useCallback(async () => {
@@ -42,12 +47,17 @@ const AuthScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
       } else {
         await dispatch(authActions.login(email, password));
       }
-    } catch {
-      setError(`Unable to ${isSignUp ? 'Sign Up' : 'login'}...`);
-    }
 
-    setIsLoading(false);
+      navigation.navigate('Shop');
+    } catch (err) {
+      setError(err.message);
+      setIsLoading(false);
+    }
   }, [dispatch, email, password]);
+
+  useEffect(() => {
+    setIsValid(validator.isEmail(email) && validator.hasMinChar(password, 6));
+  }, [email, password]);
 
   useEffect(() => {
     if (error) {
@@ -55,25 +65,30 @@ const AuthScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
     }
   }, [error]);
 
+  const getModeText = (isSignUpMode: boolean) =>
+    isSignUpMode ? 'Sign Up' : 'Login';
+
   return (
-    <KeyboardAvoidingView
-      behavior="padding"
-      keyboardVerticalOffset={50}
-      style={styles.screen}
+    <ImageBackground
+      source={require('../../assets/bg.jpg')}
+      style={styles.background}
     >
-      <ImageBackground
-        source={{
-          uri:
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQTCCBYb74s3_TOfSXuyWzmYIG0UyJVaJ98S9V8yae4CGFvQeqv&usqp=CAU',
-        }}
-        style={styles.background}
+      <LinearGradient
+        colors={['#rgba(0, 0, 0, 0.5)', 'rgba(10, 10, 10, 0.2)']}
+        style={styles.gradient}
       >
-        <LinearGradient
-          colors={['#rgba(0, 0, 0, 0.1)', 'rgba(10, 10, 10, 0.1)']}
-          style={styles.gradient}
+        <KeyboardAvoidingView
+          behavior="padding"
+          keyboardVerticalOffset={25}
+          style={styles.screen}
         >
-          <Card style={styles.form}>
-            <ScrollView>
+          {!isLoading ? (
+            <ScrollView style={styles.form}>
+              <Text style={styles.title}>
+                {isSignUp
+                  ? 'Please fill in details to sign up'
+                  : 'Authentication'}
+              </Text>
               <TextField
                 label="Email"
                 value={email}
@@ -81,7 +96,7 @@ const AuthScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
                 autoCapitalize="none"
                 labelStyle={styles.label}
                 style={styles.field}
-                validate={() => email.length > 0 && email.indexOf('@') >= 0}
+                validate={() => validator.isEmail(email)}
                 onChangeText={(text) => setEmail(text)}
                 required
               />
@@ -92,39 +107,49 @@ const AuthScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
                 autoCapitalize="none"
                 labelStyle={styles.label}
                 style={styles.field}
-                validate={() => password.length > 5}
+                validate={() => validator.hasMinChar(password, 6)}
                 onChangeText={(text) => setPassword(text)}
                 required
               />
               <View style={styles.button}>
                 <Button
-                  title={isSignUp ? 'Sign Up' : 'Login'}
-                  color={Colors.primary}
+                  title={getModeText(isSignUp)}
+                  color={
+                    device.isAndroid()
+                      ? Colors.primary
+                      : Colors.transparentWhite
+                  }
                   onPress={authHandler}
-                  disabled={isLoading}
-                />
-              </View>
-              <View style={styles.button}>
-                <Button
-                  title={`Switch to ${isSignUp ? 'Login' : 'Sign Up'} mode`}
-                  color={Colors.transparentWhite}
-                  onPress={() => {
-                    setIsSignUp((prev) => !prev);
-                  }}
-                  disabled={isLoading}
+                  disabled={!isValid}
                 />
               </View>
             </ScrollView>
-          </Card>
-        </LinearGradient>
-      </ImageBackground>
-    </KeyboardAvoidingView>
+          ) : (
+            <View style={styles.loading}>
+              <Text style={styles.loadingText}>Signing in...</Text>
+              <ActivityIndicator size="large" />
+            </View>
+          )}
+        </KeyboardAvoidingView>
+      </LinearGradient>
+      {!isLoading && (
+        <DefaultTouchable
+          onPress={() => {
+            setIsSignUp((prev) => !prev);
+          }}
+        >
+          <Text style={styles.switch}>{`Switch to ${getModeText(
+            !isSignUp
+          )} mode`}</Text>
+        </DefaultTouchable>
+      )}
+    </ImageBackground>
   );
 };
 
 AuthScreen.navigationOptions = (navData) => {
   return {
-    headerTitle: 'Authentication',
+    headerTitle: '',
     headerTintColor: Colors.transparentWhite,
     headerTransparent: true,
   };
@@ -138,20 +163,29 @@ const styles = StyleSheet.create({
   },
   background: {
     flex: 1,
-  },
-  gradient: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
     height: '100%',
   },
-  form: {
+  gradient: {
+    flex: 1,
     width: '80%',
     maxWidth: 400,
-    maxHeight: 400,
+    maxHeight: 350,
+    borderRadius: 10,
+  },
+  form: {
+    flex: 1,
     padding: 30,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  },
+  title: {
+    color: Colors.transparentWhite,
+    fontSize: 12,
+    fontFamily: Fonts.regular,
+    fontStyle: 'italic',
+    marginBottom: 30,
+    textAlign: 'right',
   },
   label: {
     color: Colors.transparentWhite,
@@ -161,6 +195,22 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.transparentWhite,
   },
   button: {
-    marginBottom: 10,
+    marginTop: 10,
+    backgroundColor: 'rgba(194,24,91,0.9)',
+    borderRadius: 5,
+  },
+  switch: {
+    marginTop: 10,
+    fontSize: 12,
+    color: Colors.transparentWhite,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    marginBottom: 20,
   },
 });

@@ -26,7 +26,6 @@ const OrdersScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
-  const ownerId = 'u1';
 
   const dispatch = useDispatch();
 
@@ -34,7 +33,7 @@ const OrdersScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
     setError('');
     setIsLoading(true);
     try {
-      await dispatch(orderActions.getOrders(ownerId));
+      await dispatch(orderActions.getOrders());
     } catch (err) {
       setError(err.message);
     }

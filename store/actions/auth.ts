@@ -10,9 +10,13 @@ export enum AuthActions {
 
 interface signUp {
   type: typeof AuthActions.SIGN_UP;
+  token: string;
+  userId: string;
 }
 interface login {
   type: typeof AuthActions.LOGIN;
+  token: string;
+  userId: string;
 }
 
 export type AuthActionTypes = signUp | login;
@@ -24,14 +28,27 @@ export const signUp = (email: string, password: string) => {
       {
         email,
         password,
-        returnSecurityToken: true,
-      }
+        returnSecureToken: true,
+      },
+      undefined,
+      false
     );
 
-    console.log(data, 'sign up');
+    if (data.error && data.error.message) {
+      switch (data.error.message) {
+        case 'EMAIL_EXISTS':
+          throw new Error('This email already exists!');
+
+        default:
+          console.log(data);
+          throw new Error('Something went wrong...');
+      }
+    }
 
     return dispatch({
       type: AuthActions.SIGN_UP,
+      token: data.idToken,
+      userId: data.localId,
     });
   };
 };
@@ -43,14 +60,30 @@ export const login = (email: string, password: string) => {
       {
         email,
         password,
-        returnSecurityToken: true,
-      }
+        returnSecureToken: true,
+      },
+      undefined,
+      false
     );
 
-    console.log(data, 'login');
+    if (data.error && data.error.message) {
+      switch (data.error.message) {
+        case 'EMAIL_NOT_FOUND':
+        case 'INVALID_EMAIL':
+          throw new Error('This email could not be found!');
+
+        case 'INVALID_PASSWORD':
+          throw new Error('This password is not valid!');
+
+        default:
+          throw new Error('Something went wrong...');
+      }
+    }
 
     return dispatch({
       type: AuthActions.LOGIN,
+      token: data.idToken,
+      userId: data.localId,
     });
   };
 };

@@ -4,6 +4,7 @@ import { ThunkDispatch } from 'redux-thunk';
 import { Order } from '../../models/order';
 import apiHelper from '../../helpers/api-helper';
 import orders from '../reducers/orders';
+import { IRootState } from '../states';
 
 export enum OrdersActions {
   ADD_ORDER = 'ADD_ORDER',
@@ -22,11 +23,19 @@ interface getOrders {
 
 export type OrdersActionTypes = addOrder | getOrders;
 
-export const addOrder = (ownerId: string, orderData: Order) => {
-  return async (dispatch: ThunkDispatch<{}, {}, AnyAction>) => {
-    const data = await apiHelper.post(`orders/${ownerId}`, {
-      ...orderData,
-    });
+export const addOrder = (orderData: Order) => {
+  return async (
+    dispatch: ThunkDispatch<{}, {}, AnyAction>,
+    getState: () => IRootState
+  ) => {
+    const state = getState();
+    const data = await apiHelper.post(
+      `orders/${state.auth.userId}`,
+      {
+        ...orderData,
+      },
+      state.auth.token
+    );
 
     return dispatch({
       type: OrdersActions.ADD_ORDER,
@@ -35,9 +44,13 @@ export const addOrder = (ownerId: string, orderData: Order) => {
   };
 };
 
-export const getOrders = (ownerId: string) => {
-  return async (dispatch: ThunkDispatch<{}, {}, AnyAction>) => {
-    const data = await apiHelper.get(`orders/${ownerId}`);
+export const getOrders = () => {
+  return async (
+    dispatch: ThunkDispatch<{}, {}, AnyAction>,
+    getState: () => IRootState
+  ) => {
+    const state = getState();
+    const data = await apiHelper.get(`orders/${state.auth.userId}`);
 
     const orders: Order[] = [];
     for (const key in data) {

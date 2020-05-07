@@ -1,11 +1,10 @@
 import { ProductsActionTypes, ProductsActions } from '../actions/products';
 import { IProductState } from '../states/products';
-import PRODUCTS from '../../data/dummy-data';
 import Product from '../../models/product';
 
 const initialState: IProductState = {
-  availableProducts: PRODUCTS,
-  userProducts: PRODUCTS.filter((product) => product.ownerId === 'u1'),
+  availableProducts: [],
+  userProducts: [],
 };
 
 export default (
@@ -17,9 +16,7 @@ export default (
       return {
         ...state,
         availableProducts: action.products,
-        userProducts: action.products.filter(
-          (product) => product.ownerId === 'u1'
-        ),
+        userProducts: action.userProducts,
       };
 
     case ProductsActions.DELETE_PRODUCT:
@@ -36,7 +33,6 @@ export default (
     case ProductsActions.ADD_PRODUCT:
       const newProduct: Product = {
         ...action.product,
-        ownerId: 'u1',
       };
       return {
         ...state,

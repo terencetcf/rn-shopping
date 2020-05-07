@@ -10,6 +10,7 @@ import ProductItem from '../../components/shop/ProductItem';
 import DefaultHeaderLeft from '../../components/default/DefaultHeaderLeft';
 import { deleteProduct } from '../../store/actions/products';
 import DefaultHeaderButtons from '../../components/default/DefaultHeaderButtons';
+import CenteredView from '../../components/CenteredView';
 
 type Params = {};
 
@@ -24,6 +25,10 @@ const UserProductsScreen: NavigationStackScreenComponent<
   );
 
   const dispatch = useDispatch();
+
+  if (products.length < 1) {
+    return <CenteredView message="No product is available!" />;
+  }
 
   const editButtonHandler = (product: Product) => {
     navigation.navigate({

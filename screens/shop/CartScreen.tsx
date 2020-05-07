@@ -21,7 +21,6 @@ import * as cartActions from '../../store/actions/cart';
 import * as orderActions from '../../store/actions/orders';
 import Card from '../../components/Card';
 import { Order } from '../../models/order';
-import Loader from '../../components/Loader';
 
 type Params = {};
 
@@ -36,8 +35,6 @@ const CartScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
   const cartItems = useSelector<IRootState, ICartItem[]>(
     (state) => state.cart.items
   );
-  const ownerId = 'u1';
-
   const totalAmount = useSelector<IRootState, number>(
     (state) => state.cart.totalAmount
   );
@@ -62,7 +59,7 @@ const CartScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
     let errorOcurred = false;
     const order = new Order(cartItems, totalAmount);
     try {
-      await dispatch(orderActions.addOrder(ownerId, order));
+      await dispatch(orderActions.addOrder(order));
     } catch (err) {
       setError(err.message);
       errorOcurred = true;
