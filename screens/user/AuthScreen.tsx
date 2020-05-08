@@ -16,6 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import TextField from '../../components/TextField';
 import Colors from '../../constants/Colors';
 import { useDispatch } from 'react-redux';
+
 import * as authActions from '../../store/actions/auth';
 import DefaultTouchable from '../../components/default/DefaultTouchable';
 import device from '../../helpers/device';
