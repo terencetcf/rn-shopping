@@ -10,27 +10,22 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { NavigationStackScreenComponent } from 'react-navigation-stack';
 import { LinearGradient } from 'expo-linear-gradient';
+import { StackScreenProps } from '@react-navigation/stack';
 
 import TextField from '../../components/TextField';
 import Colors from '../../constants/Colors';
 import { useDispatch } from 'react-redux';
-
 import * as authActions from '../../store/actions/auth';
 import DefaultTouchable from '../../components/default/DefaultTouchable';
 import device from '../../helpers/device';
 import validator from '../../helpers/validator';
 import Fonts from '../../constants/Fonts';
+import { RootStackNavigatorParamList } from '../../navigation/ShopNavigator';
 
-type Params = {};
+interface IProps extends StackScreenProps<RootStackNavigatorParamList> {}
 
-type ScreenProps = {};
-
-const AuthScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
-  navigation,
-  ...props
-}) => {
+const AuthScreen: React.FC<IProps> = ({ navigation, ...props }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [isValid, setIsValid] = useState(false);
@@ -49,7 +44,7 @@ const AuthScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
         await dispatch(authActions.login(email, password));
       }
 
-      navigation.navigate('Shop');
+      // navigation.navigate('ProductsOverview');
     } catch (err) {
       setError(err.message);
       setIsLoading(false);
@@ -148,7 +143,7 @@ const AuthScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
   );
 };
 
-AuthScreen.navigationOptions = (navData) => {
+export const AuthScreenOptions = (navData: any) => {
   return {
     headerTitle: '',
     headerTintColor: Colors.transparentWhite,

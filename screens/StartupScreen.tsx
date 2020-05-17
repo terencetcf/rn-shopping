@@ -6,26 +6,18 @@ import {
   AsyncStorage,
 } from 'react-native';
 import { useDispatch } from 'react-redux';
-import { NavigationStackScreenComponent } from 'react-navigation-stack';
 
 import Colors from '../constants/Colors';
 import * as authActions from '../store/actions/auth';
 import moment from 'moment';
 
-type Params = {};
-
-type ScreenProps = {};
-
-const StartupScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
-  navigation,
-  ...props
-}) => {
+const StartupScreen = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     const tryLogin = async () => {
       const userData = await AsyncStorage.getItem('userData');
       if (!userData) {
-        navigation.navigate('Auth');
+        dispatch(authActions.setDidTryAutoLogin());
         return;
       }
 
@@ -35,13 +27,11 @@ const StartupScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
       const expirationDate = moment(expiryDate);
 
       if (expirationDate.isBefore(moment.utc()) || !token || !userId) {
-        navigation.navigate('Auth');
+        dispatch(authActions.setDidTryAutoLogin());
         return;
       }
 
       dispatch(authActions.authenticate(token, userId, expirationDate));
-
-      navigation.navigate('Shop');
     };
 
     tryLogin();

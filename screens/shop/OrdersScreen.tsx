@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, Button, FlatList } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { NavigationStackScreenComponent } from 'react-navigation-stack';
+import { StackScreenProps } from '@react-navigation/stack';
 
 import { IRootState } from '../../store/states';
 import Fonts from '../../constants/Fonts';
@@ -15,15 +15,11 @@ import DefaultHeaderLeft from '../../components/default/DefaultHeaderLeft';
 import ErrorView from '../../components/ErrorView';
 import Loader from '../../components/Loader';
 import CenteredView from '../../components/CenteredView';
+import { RootStackNavigatorParamList } from '../../navigation/ShopNavigator';
 
-type Params = {};
+interface IProps extends StackScreenProps<RootStackNavigatorParamList> {}
 
-type ScreenProps = {};
-
-const OrdersScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
-  navigation,
-  ...props
-}) => {
+const OrdersScreen: React.FC<IProps> = ({ navigation, ...props }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
 
@@ -41,10 +37,10 @@ const OrdersScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
   }, [dispatch, setIsLoading, setError]);
 
   useEffect(() => {
-    const willFocusListener = navigation.addListener('willFocus', loadOrders);
+    const unsubscribeFocus = navigation.addListener('focus', loadOrders);
 
     return () => {
-      willFocusListener.remove();
+      unsubscribeFocus();
     };
   }, [loadOrders, navigation]);
 
@@ -95,7 +91,7 @@ const OrdersScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
   );
 };
 
-OrdersScreen.navigationOptions = (navData) => {
+export const OrdersScreenOptions = (navData: any) => {
   return {
     headerTitle: 'Your Orders',
     headerLeft: () => <DefaultHeaderLeft navData={navData} />,

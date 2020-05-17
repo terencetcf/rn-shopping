@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Button, FlatList, Alert } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { NavigationStackScreenComponent } from 'react-navigation-stack';
+import { StackScreenProps } from '@react-navigation/stack';
 
 import { IRootState } from '../../store/states';
 import Colors from '../../constants/Colors';
@@ -11,15 +11,11 @@ import DefaultHeaderLeft from '../../components/default/DefaultHeaderLeft';
 import { deleteProduct } from '../../store/actions/products';
 import DefaultHeaderButtons from '../../components/default/DefaultHeaderButtons';
 import CenteredView from '../../components/CenteredView';
+import { RootStackNavigatorParamList } from '../../navigation/ShopNavigator';
 
-type Params = {};
+interface IProps extends StackScreenProps<RootStackNavigatorParamList> {}
 
-type ScreenProps = {};
-
-const UserProductsScreen: NavigationStackScreenComponent<
-  Params,
-  ScreenProps
-> = ({ navigation, ...props }) => {
+const UserProductsScreen: React.FC<IProps> = ({ navigation, ...props }) => {
   const products = useSelector<IRootState, Product[]>(
     (state) => state.products.userProducts
   );
@@ -31,9 +27,9 @@ const UserProductsScreen: NavigationStackScreenComponent<
   }
 
   const editButtonHandler = (product: Product) => {
-    navigation.navigate({
-      routeName: 'EditProduct',
-      params: { productId: product.id, productTitle: product.title },
+    navigation.navigate('EditProduct', {
+      productId: product.id,
+      productTitle: product.title,
     });
   };
 
@@ -79,13 +75,12 @@ const UserProductsScreen: NavigationStackScreenComponent<
   );
 };
 
-UserProductsScreen.navigationOptions = (navData) => {
+export const UserProductsScreenOptions = (navData: any) => {
   return {
     headerTitle: 'User Products',
     headerLeft: () => <DefaultHeaderLeft navData={navData} />,
     headerRight: () => (
       <DefaultHeaderButtons
-        navData={navData}
         title="Add New Product"
         iconName="ios-create"
         iconNameAndroid="md-create"

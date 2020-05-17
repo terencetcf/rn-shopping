@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, FlatList, Button, View, Text } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { NavigationStackScreenComponent } from 'react-navigation-stack';
+import { StackScreenProps } from '@react-navigation/stack';
+import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 
 import { IRootState } from '../../store/states';
 import Product from '../../models/product';
 import ProductItem from '../../components/shop/ProductItem';
 import * as cartActions from '../../store/actions/cart';
 import * as productActions from '../../store/actions/products';
-import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import CustomHeaderButton from '../../UI/HeaderButton';
 import device from '../../helpers/device';
 import DefaultHeaderLeft from '../../components/default/DefaultHeaderLeft';
@@ -16,15 +16,11 @@ import Colors from '../../constants/Colors';
 import ErrorView from '../../components/ErrorView';
 import Loader from '../../components/Loader';
 import CenteredView from '../../components/CenteredView';
+import { RootStackNavigatorParamList } from '../../navigation/ShopNavigator';
 
-type Params = {};
+interface IProps extends StackScreenProps<RootStackNavigatorParamList> {}
 
-type ScreenProps = {};
-
-const ProductsOverviewScreen: NavigationStackScreenComponent<
-  Params,
-  ScreenProps
-> = ({ navigation, ...props }) => {
+const ProductsOverviewScreen: React.FC<IProps> = ({ navigation, ...props }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string>('');
@@ -46,10 +42,10 @@ const ProductsOverviewScreen: NavigationStackScreenComponent<
   }, [dispatch, setIsLoading, setError]);
 
   useEffect(() => {
-    const willFocusListener = navigation.addListener('willFocus', loadProducts);
+    const unsubscribeFocus = navigation.addListener('focus', loadProducts);
 
     return () => {
-      willFocusListener.remove();
+      unsubscribeFocus();
     };
   }, [loadProducts, navigation]);
 
@@ -73,12 +69,9 @@ const ProductsOverviewScreen: NavigationStackScreenComponent<
   }
 
   const productPressHandler = (product: Product) => {
-    navigation.navigate({
-      routeName: 'ProductDetails',
-      params: {
-        productId: product.id,
-        productTitle: product.title,
-      },
+    navigation.navigate('ProductDetails', {
+      productId: product.id,
+      productTitle: product.title,
     });
   };
 
@@ -114,7 +107,7 @@ const ProductsOverviewScreen: NavigationStackScreenComponent<
   );
 };
 
-ProductsOverviewScreen.navigationOptions = (navData) => {
+export const ProductsOverviewScreenOptions = (navData: any) => {
   return {
     headerTitle: 'All Products',
     headerLeft: () => <DefaultHeaderLeft navData={navData} />,

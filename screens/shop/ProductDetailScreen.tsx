@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, Button } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { NavigationStackScreenComponent } from 'react-navigation-stack';
 
 import { IRootState } from '../../store/states';
 import Product from '../../models/product';
@@ -10,20 +9,16 @@ import currency from '../../helpers/currency';
 import Colors from '../../constants/Colors';
 import Fonts from '../../constants/Fonts';
 import * as cartActions from '../../store/actions/cart';
+import { StackScreenProps } from '@react-navigation/stack';
+import { RootStackNavigatorParamList } from '../../navigation/ShopNavigator';
+import { RouteProp } from '@react-navigation/native';
 
-type Params = {
-  productId: string;
-  productTitle: string;
-};
+interface IProps extends StackScreenProps<RootStackNavigatorParamList> {
+  route: RouteProp<RootStackNavigatorParamList, 'ProductDetails'>;
+}
 
-type ScreenProps = {};
-
-const ProductDetailsScreen: NavigationStackScreenComponent<
-  Params,
-  ScreenProps
-> = ({ navigation, ...props }) => {
-  const productId = navigation.getParam('productId');
-
+const ProductDetailsScreen: React.FC<IProps> = ({ navigation, ...props }) => {
+  const productId = props.route.params.productId;
   const selectedProduct = useSelector<IRootState, Product | undefined>(
     (state) =>
       state.products.availableProducts.find(
@@ -63,8 +58,8 @@ const ProductDetailsScreen: NavigationStackScreenComponent<
   );
 };
 
-ProductDetailsScreen.navigationOptions = (navData) => {
-  const selectedProductTitle = navData.navigation.getParam('productTitle');
+export const ProductDetailsScreenOptions = (navData: any) => {
+  const selectedProductTitle = navData.route.params.productTitle;
 
   return {
     headerTitle: selectedProductTitle,

@@ -11,12 +11,16 @@ export enum AuthActions {
   AUTHENTICATE = 'AUTHENTICATE',
   LOGIN = 'LOGIN',
   LOGOUT = 'LOGOUT',
+  SET_DID_TRY_AL = 'SET_DID_TRY_AL',
 }
 
 interface authenticate {
   type: typeof AuthActions.AUTHENTICATE;
   token: string;
   userId: string;
+}
+interface setDidTryAutoLogin {
+  type: typeof AuthActions.SET_DID_TRY_AL;
 }
 interface signUp {
   type: typeof AuthActions.SIGN_UP;
@@ -33,7 +37,12 @@ interface logout {
   type: typeof AuthActions.LOGOUT;
 }
 
-export type AuthActionTypes = authenticate | signUp | login | logout;
+export type AuthActionTypes =
+  | authenticate
+  | setDidTryAutoLogin
+  | signUp
+  | login
+  | logout;
 
 export const authenticate = (
   token: string,
@@ -50,6 +59,10 @@ export const authenticate = (
       userId,
     });
   };
+};
+
+export const setDidTryAutoLogin = () => {
+  return { type: AuthActions.SET_DID_TRY_AL };
 };
 
 export const signUp = (email: string, password: string) => {

@@ -7,7 +7,6 @@ import device from '../../helpers/device';
 import Colors from '../../constants/Colors';
 
 interface IProps {
-  navData: any;
   title: string;
   iconName: string;
   iconNameAndroid?: string;

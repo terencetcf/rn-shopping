@@ -7,7 +7,8 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { NavigationStackScreenComponent } from 'react-navigation-stack';
+import { RouteProp } from '@react-navigation/native';
+import { StackScreenProps } from '@react-navigation/stack';
 
 import { IRootState } from '../../store/states';
 import Product from '../../models/product';
@@ -16,23 +17,16 @@ import * as productsActions from '../../store/actions/products';
 import numberHelper from '../../helpers/numberHelper';
 import DefaultHeaderButtons from '../../components/default/DefaultHeaderButtons';
 import Loader from '../../components/Loader';
+import { RootStackNavigatorParamList } from '../../navigation/ShopNavigator';
 
-type Params = {
-  productId: string;
-  productTitle: string;
-  isFormValid: boolean;
-  submit: () => void;
-};
+interface IProps extends StackScreenProps<RootStackNavigatorParamList> {
+  route: RouteProp<RootStackNavigatorParamList, 'EditProduct'>;
+}
 
-type ScreenProps = {};
-
-const EditProductScreen: NavigationStackScreenComponent<
-  Params,
-  ScreenProps
-> = ({ navigation, ...props }) => {
+const EditProductScreen: React.FC<IProps> = ({ navigation, ...props }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
-  const productId = navigation.getParam('productId');
+  const productId = props.route.params?.productId;
   const productToEdit = useSelector<IRootState, Product | undefined>((state) =>
     state.products.userProducts.find((p) => p.id === productId)
   );
@@ -108,12 +102,17 @@ const EditProductScreen: NavigationStackScreenComponent<
   }, []);
 
   useEffect(() => {
-    const isFormValid = validateForm();
-    navigation.setParams({ isFormValid });
-  }, [productToEdit, title, imageUrl, price]);
-
-  useEffect(() => {
-    navigation.setParams({ submit: submitHandler });
+    navigation.setOptions({
+      headerRight: () => (
+        <DefaultHeaderButtons
+          title="Save"
+          iconName="ios-checkmark"
+          iconNameAndroid="md-checkmark"
+          onPress={submitHandler}
+          disabled={!validateForm()}
+        />
+      ),
+    });
   }, [submitHandler]);
 
   useEffect(() => {
@@ -176,27 +175,11 @@ const EditProductScreen: NavigationStackScreenComponent<
   );
 };
 
-EditProductScreen.navigationOptions = (navData) => {
-  const productTitle = navData.navigation.getParam('productTitle');
-  const headerTitle = navData.navigation.getParam('productId')
-    ? productTitle
-    : 'Add Product';
-
-  const submitFn = navData.navigation.getParam('submit');
-  const isFormValid = navData.navigation.getParam('isFormValid');
+export const EditProductScreenOptions = (navData: any) => {
+  const headerTitle = navData.route.params?.productTitle || 'Add Product';
 
   return {
     headerTitle,
-    headerRight: () => (
-      <DefaultHeaderButtons
-        navData={navData}
-        title="Save"
-        iconName="ios-checkmark"
-        iconNameAndroid="md-checkmark"
-        onPress={submitFn}
-        disabled={!isFormValid}
-      />
-    ),
   };
 };
 

@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { NavigationStackScreenComponent } from 'react-navigation-stack';
+import { StackScreenProps } from '@react-navigation/stack';
 
 import { IRootState } from '../../store/states';
 import Fonts from '../../constants/Fonts';
@@ -19,17 +19,14 @@ import currency from '../../helpers/currency';
 import CartItem from '../../components/shop/CartItem';
 import * as cartActions from '../../store/actions/cart';
 import * as orderActions from '../../store/actions/orders';
+import * as authActions from '../../store/actions/auth';
 import Card from '../../components/Card';
 import { Order } from '../../models/order';
+import { RootStackNavigatorParamList } from '../../navigation/ShopNavigator';
 
-type Params = {};
+interface IProps extends StackScreenProps<RootStackNavigatorParamList> {}
 
-type ScreenProps = {};
-
-const CartScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
-  navigation,
-  ...props
-}) => {
+const CartScreen: React.FC<IProps> = ({ navigation, ...props }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const cartItems = useSelector<IRootState, ICartItem[]>(
@@ -51,6 +48,10 @@ const CartScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
 
   const decreaseCartItemQuantity = (productId: string) => {
     dispatch(cartActions.decreaseCartQuantity(productId));
+  };
+
+  const logout = () => {
+    dispatch(authActions.logout());
   };
 
   const orderNow = useCallback(async () => {
@@ -127,7 +128,7 @@ const CartScreen: NavigationStackScreenComponent<Params, ScreenProps> = ({
   );
 };
 
-CartScreen.navigationOptions = (navData) => {
+export const CartScreenOptions = (navData: any) => {
   return {
     headerTitle: 'Your Cart',
   };
